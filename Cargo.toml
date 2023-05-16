@@ -1,0 +1,21 @@
+[package]
+name = "nu_plugin_hcl"
+license = "MIT"
+authors = ["Yethal"]
+keywords = ["nushell", "hcl", "plugin"]
+homepage = "https://github.com/Yethal/nu_plugin_hcl"
+repository = "https://github.com/Yethal/nu_plugin_hcl"
+description = "A nushell plugin for parsing Hashicorp Configuration Language file format"
+version = "0.1.0"
+edition = "2021"
+readme = "README.md"
+
+[[bin]]
+name = "nu_plugin_hcl"
+bench = false
+
+[dependencies]
+nu-plugin = "0.79.0"
+nu-protocol = { version = "0.79.0", features = ["plugin"] }
+hcl-rs = "0.14.2"
+serde_json = "1.0.96"
