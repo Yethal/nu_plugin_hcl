@@ -6,7 +6,7 @@ keywords = ["nushell", "hcl", "plugin"]
 homepage = "https://github.com/Yethal/nu_plugin_hcl"
 repository = "https://github.com/Yethal/nu_plugin_hcl"
 description = "A nushell plugin for parsing Hashicorp Configuration Language file format"
-version = "0.82.0"
+version = "0.83.0"
 edition = "2021"
 readme = "README.md"
 exclude = ["main.tf"]
@@ -16,7 +16,7 @@ name = "nu_plugin_hcl"
 bench = false
 
 [dependencies]
-nu-plugin = "0.82.0"
-nu-protocol = { version = "0.82.0", features = ["plugin"] }
+nu-plugin = "0.83.0"
+nu-protocol = { version = "0.83.0", features = ["plugin"] }
 hcl-rs = "0.14.2"
 serde_json = "1.0.96"
