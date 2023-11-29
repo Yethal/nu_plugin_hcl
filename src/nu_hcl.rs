@@ -93,11 +93,18 @@ pub fn convert_sjson_to_value(value: &SerdeJsonValue, span: Span) -> Value {
 
 impl Plugin for FromHcl {
     fn signature(&self) -> Vec<PluginSignature> {
-        vec![PluginSignature::build("from hcl")
-            .input_output_types(vec![(Type::String, Type::Record(vec![]))])
-            .usage("Parse text as .hcl and create a record")
-            .plugin_examples(examples())
-            .category(Category::Formats)]
+        vec![
+            PluginSignature::build("from hcl")
+                .input_output_types(vec![(Type::String, Type::Record(vec![]))])
+                .usage("Parse text as .hcl and create a record")
+                .plugin_examples(examples())
+                .category(Category::Formats),
+            PluginSignature::build("from tf")
+                .input_output_types(vec![(Type::String, Type::Record(vec![]))])
+                .usage("Parse text as .tf and create a record")
+                .plugin_examples(examples())
+                .category(Category::Formats),
+        ]
     }
 
     fn run(
