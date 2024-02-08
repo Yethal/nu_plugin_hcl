@@ -110,6 +110,7 @@ impl Plugin for FromHcl {
     fn run(
         &mut self,
         _name: &str,
+        _config: &Option<Value>,
         call: &EvaluatedCall,
         input: &Value,
     ) -> Result<Value, LabeledError> {
