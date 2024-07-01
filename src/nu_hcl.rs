@@ -1,27 +1,102 @@
-use nu_plugin::{EvaluatedCall, LabeledError, Plugin};
-use nu_protocol::{record, Category, PluginExample, PluginSignature, Span, Type, Value};
+use nu_plugin::{EngineInterface, EvaluatedCall, Plugin, PluginCommand, SimplePluginCommand};
+use nu_protocol::{
+    record, Category, ErrorLabel, Example, LabeledError, Signature, Span, Type, Value,
+};
 use serde_json::Value as SerdeJsonValue;
 
-pub struct FromHcl;
+pub struct HclPlugin;
 
-impl FromHcl {
-    pub fn new() -> Self {
-        Self {}
+impl Plugin for HclPlugin {
+    fn version(&self) -> String {
+        env!("CARGO_PKG_VERSION").to_string()
+    }
+
+    fn commands(&self) -> Vec<Box<dyn nu_plugin::PluginCommand<Plugin = Self>>> {
+        vec![Box::new(FromHcl), Box::new(FromTf)]
     }
 }
 
-pub fn examples() -> Vec<PluginExample> {
+struct FromHcl;
+
+impl SimplePluginCommand for FromHcl {
+    type Plugin = HclPlugin;
+
+    fn name(&self) -> &str {
+        "from hcl"
+    }
+
+    fn signature(&self) -> nu_protocol::Signature {
+        signature(PluginCommand::name(self))
+    }
+
+    fn usage(&self) -> &str {
+        "Parse text as .hcl and create a record"
+    }
+
+    fn examples(&self) -> Vec<Example> {
+        examples("Convert .hcl data into record")
+    }
+
+    fn run(
+        &self,
+        _plugin: &Self::Plugin,
+        _engine: &EngineInterface,
+        call: &EvaluatedCall,
+        input: &Value,
+    ) -> Result<Value, LabeledError> {
+        run(call, input)
+    }
+}
+
+pub struct FromTf;
+
+impl SimplePluginCommand for FromTf {
+    type Plugin = HclPlugin;
+
+    fn name(&self) -> &str {
+        "from tf"
+    }
+
+    fn signature(&self) -> nu_protocol::Signature {
+        signature(PluginCommand::name(self))
+    }
+
+    fn usage(&self) -> &str {
+        "Parse text as .tf and create a record"
+    }
+
+    fn examples(&self) -> Vec<Example> {
+        examples("Convert .tf data into record")
+    }
+
+    fn run(
+        &self,
+        _plugin: &Self::Plugin,
+        _engine: &EngineInterface,
+        call: &EvaluatedCall,
+        input: &Value,
+    ) -> Result<Value, LabeledError> {
+        run(call, input)
+    }
+}
+
+fn signature(name: &str) -> nu_protocol::Signature {
+    Signature::build(name)
+        .input_output_type(Type::String, Type::Record(Box::new([])))
+        .category(Category::Formats)
+}
+
+fn examples(description: &str) -> Vec<Example> {
     let span = Span::test_data();
-    let vec = vec![PluginExample {
-        description: "Convert .hcl data into record".into(),
+    let vec = vec![Example {
+        description,
         example: "'provider \"aws\" {
   region = \"us-east-1\"
 }
 resource \"aws_instance\" \"web\" {
   ami           = \"ami-a1b2c3d4\"
   instance_type = \"t2.micro\"
-}' | from hcl"
-            .into(),
+}' | from hcl",
         result: Some(Value::record(
             record! {
                     "provider".to_string()=>Value::record(
@@ -60,6 +135,25 @@ resource \"aws_instance\" \"web\" {
     vec
 }
 
+fn run(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
+    let span = call.head;
+    let input_string = input.as_str()?;
+
+    let parse_result: SerdeJsonValue = hcl::from_str(input_string).map_err(|e| LabeledError {
+        labels: vec![ErrorLabel {
+            text: "Error parsing hcl".into(),
+            span,
+        }],
+        msg: e.to_string(),
+        code: None,
+        url: None,
+        help: None,
+        inner: Vec::default(),
+    })?;
+
+    Ok(convert_sjson_to_value(&parse_result, span))
+}
+
 pub fn convert_sjson_to_value(value: &SerdeJsonValue, span: Span) -> Value {
     match value {
         SerdeJsonValue::Array(array) => {
@@ -88,42 +182,5 @@ pub fn convert_sjson_to_value(value: &SerdeJsonValue, span: Span) -> Value {
             Value::record(rec, span)
         }
         SerdeJsonValue::String(s) => Value::string(s.clone(), span),
-    }
-}
-
-impl Plugin for FromHcl {
-    fn signature(&self) -> Vec<PluginSignature> {
-        vec![
-            PluginSignature::build("from hcl")
-                .input_output_types(vec![(Type::String, Type::Record(vec![]))])
-                .usage("Parse text as .hcl and create a record")
-                .plugin_examples(examples())
-                .category(Category::Formats),
-            PluginSignature::build("from tf")
-                .input_output_types(vec![(Type::String, Type::Record(vec![]))])
-                .usage("Parse text as .tf and create a record")
-                .plugin_examples(examples())
-                .category(Category::Formats),
-        ]
-    }
-
-    fn run(
-        &mut self,
-        _name: &str,
-        _config: &Option<Value>,
-        call: &EvaluatedCall,
-        input: &Value,
-    ) -> Result<Value, LabeledError> {
-        let span = call.head;
-        let input_string = input.as_string()?;
-
-        let parse_result: SerdeJsonValue =
-            hcl::from_str(&input_string).map_err(|e| LabeledError {
-                label: "Error parsing hcl".into(),
-                msg: e.to_string(),
-                span: Some(span),
-            })?;
-
-        Ok(convert_sjson_to_value(&parse_result, span))
     }
 }
