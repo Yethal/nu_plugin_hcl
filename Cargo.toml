@@ -16,7 +16,7 @@ name = "nu_plugin_hcl"
 bench = false
 
 [dependencies]
-nu-plugin = "0.95.0"
-nu-protocol = { version = "0.95.0", features = ["plugin"] }
+nu-plugin = "0.96.1"
+nu-protocol = { version = "0.96.1", features = ["plugin"] }
 hcl-rs = "0.16.6"
 serde_json = "1.0.96"
