@@ -29,7 +29,7 @@ impl SimplePluginCommand for FromHcl {
         signature(PluginCommand::name(self))
     }
 
-    fn usage(&self) -> &str {
+    fn description(&self) -> &str {
         "Parse text as .hcl and create a record"
     }
 
@@ -61,7 +61,7 @@ impl SimplePluginCommand for FromTf {
         signature(PluginCommand::name(self))
     }
 
-    fn usage(&self) -> &str {
+    fn description(&self) -> &str {
         "Parse text as .tf and create a record"
     }
 
