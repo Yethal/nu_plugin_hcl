@@ -1,6 +1,6 @@
 use nu_plugin::{EngineInterface, EvaluatedCall, Plugin, PluginCommand, SimplePluginCommand};
 use nu_protocol::{
-    record, Category, ErrorLabel, Example, LabeledError, Signature, Span, Type, Value,
+    record, Category, Example, LabeledError, Signature, Span, Type, Value,
 };
 use serde_json::Value as SerdeJsonValue;
 
@@ -139,17 +139,8 @@ fn run(call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
     let span = call.head;
     let input_string = input.as_str()?;
 
-    let parse_result: SerdeJsonValue = hcl::from_str(input_string).map_err(|e| LabeledError {
-        labels: vec![ErrorLabel {
-            text: "Error parsing hcl".into(),
-            span,
-        }],
-        msg: e.to_string(),
-        code: None,
-        url: None,
-        help: None,
-        inner: Vec::default(),
-    })?;
+    let parse_result: SerdeJsonValue = hcl::from_str(input_string)
+        .map_err(|e| LabeledError::new(format!("{}", e)).with_label("Error parsing hcl", span))?;
 
     Ok(convert_sjson_to_value(&parse_result, span))
 }

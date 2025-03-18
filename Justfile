@@ -29,3 +29,9 @@ bump-version:
     } else {
         print "Not bumping version"
     }
+
+# Tag release
+tag:
+    #!/usr/bin/env nu
+    let plugin_version = (open Cargo.toml).package.version
+    git tag -a $plugin_version -m $"Bump version to ($plugin_version)"
