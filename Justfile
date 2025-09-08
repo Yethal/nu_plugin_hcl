@@ -21,17 +21,18 @@ bump-version:
     #!/usr/bin/env nu
     let nushell_version = (http get https://api.github.com/repos/nushell/nushell/releases/latest).tag_name
     let plugin_version = (open Cargo.toml).package.version
-    if $nushell_version > $plugin_version or true {
-        print "Bumping version"
-        open Cargo.toml --raw
-        | str replace -a $plugin_version $nushell_version
-        | save -f Cargo.toml
-    } else {
-        print "Not bumping version"
-    }
+    print $"Bumping version to ($nushell_version)"
+    open Cargo.toml --raw
+    | str replace -a $plugin_version $nushell_version
+    | save -f Cargo.toml
+    
 
 # Tag release
-tag:
+tag: build
     #!/usr/bin/env nu
     let plugin_version = (open Cargo.toml).package.version
-    git tag -a $plugin_version -m $"Bump version to ($plugin_version)"
+    let message = $"Bump version to ($plugin_version)"
+    git add .
+    git commit -m $message
+    git tag -a $plugin_version -m $message
+    git push --tags
