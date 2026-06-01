@@ -1,7 +1,5 @@
 use nu_plugin::{EngineInterface, EvaluatedCall, Plugin, PluginCommand, SimplePluginCommand};
-use nu_protocol::{
-    record, Category, Example, LabeledError, Signature, Span, Type, Value,
-};
+use nu_protocol::{record, Category, Example, LabeledError, Signature, Span, Type, Value};
 use serde_json::Value as SerdeJsonValue;
 
 pub struct HclPlugin;
@@ -33,7 +31,7 @@ impl SimplePluginCommand for FromHcl {
         "Parse text as .hcl and create a record"
     }
 
-    fn examples(&self) -> Vec<Example> {
+    fn examples(&'_ self) -> Vec<Example<'_>> {
         examples("Convert .hcl data into record")
     }
 
@@ -63,6 +61,10 @@ impl SimplePluginCommand for FromTf {
 
     fn description(&self) -> &str {
         "Parse text as .tf and create a record"
+    }
+
+    fn search_terms(&self) -> Vec<&str> {
+        vec!["hcl", "hashicorp"]
     }
 
     fn examples(&self) -> Vec<Example> {
