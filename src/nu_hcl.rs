@@ -84,7 +84,7 @@ impl SimplePluginCommand for FromTf {
 
 fn signature(name: &str) -> nu_protocol::Signature {
     Signature::build(name)
-        .input_output_type(Type::String, Type::Record(Box::new([])))
+        .input_output_type(Type::String, Type::record())
         .category(Category::Formats)
 }
 
