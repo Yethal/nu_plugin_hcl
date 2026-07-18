@@ -67,7 +67,7 @@ impl SimplePluginCommand for FromTf {
         vec!["hcl", "hashicorp"]
     }
 
-    fn examples(&self) -> Vec<Example> {
+    fn examples(&self) -> Vec<Example<'_>> {
         examples("Convert .tf data into record")
     }
 
